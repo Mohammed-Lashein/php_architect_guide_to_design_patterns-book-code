@@ -2,6 +2,7 @@
   "name": "mohammedlashein/php_architect_book_revisited",
   "autoload": {
     "psr-4": {
+      "Tests\\": "tests/"
     }
   },
   "config": {
