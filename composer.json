@@ -1,0 +1,17 @@
+{
+  "name": "mohammedlashein/php_architect_book_revisited",
+  "autoload": {
+    "psr-4": {
+    }
+  },
+  "config": {
+  "process-timeout": 0,
+  "allow-plugins": {
+    "pestphp/pest-plugin": true
+  }
+  },
+  "require-dev": {
+    "pestphp/pest": "^4.0",
+    "mockery/mockery": "^1.6"
+  }
+}
