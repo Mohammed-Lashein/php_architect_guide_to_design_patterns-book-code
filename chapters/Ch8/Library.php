@@ -12,4 +12,7 @@ class Library {
   public function getIterator(): Iterator {
     return new Iterator($this->collection);
   }
+  public function getVariantIterator(): VariantIterator {
+    return new VariantIterator($this->collection);
+  }
 }

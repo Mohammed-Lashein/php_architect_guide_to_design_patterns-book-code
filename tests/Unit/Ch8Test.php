@@ -82,4 +82,19 @@ describe("Iterator", function() {
     }
     expect($output)->toBe('media1media2media3');
   });
+
+  /* 
+    I skipped trying the implementation of making an internal pointer as the 
+  writer made it a bit complex than having a pointer property on Iterator
+  */
+
+  // I am adding other iterators test here since the beforeEach() hook is located in this describe block
+  test("VariantIterator works correctly", function() {
+    $variantIterator = $this->lib->getVariantIterator();
+    $output = '';
+    while ($item = $variantIterator->next()) {
+      $output .= $item->getName();
+    }
+      expect($output)->toBe('media1media2media3');
+  })->only();
 });
