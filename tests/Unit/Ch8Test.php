@@ -96,5 +96,26 @@ describe("Iterator", function() {
       $output .= $item->getName();
     }
       expect($output)->toBe('media1media2media3');
-  })->only();
+  });
+  test("LibraryAvailableIterator works correctly", function() {
+    $dvd = new Media('test', 2015, 'dvd');
+    $this->lib->add($dvd);
+    $this->lib->add(new Media('media4', 2016));
+
+    $it = $this->lib->getVariantIterator();
+    $output = '';
+    while($item = $it->next()) {
+      $output .= $item->getName();
+    }
+    expect($output)->toBe('media1media2media3testmedia4');
+
+    $dvd->checkout('John');
+    $libAvailableIterator = $this->lib->getAvailableItemsIterator();
+
+    $output = '';
+    while ($item = $libAvailableIterator->next()) {
+      $output .= $item->getName();
+    }
+    expect($output)->toBe('media1media2media3media4');
+  });
 });
