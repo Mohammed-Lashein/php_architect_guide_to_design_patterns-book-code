@@ -49,3 +49,12 @@ Another implementation:
   }
 ```
 I will follow the writer's implementation (where he used a flag to determine the 1st iteration) to stick with the code in the book.
+____
+### Assignment in the while loop expression
+This syntax is used extensively in this chapter's code: 
+```php
+while($item = $it->next()) {
+  // some code...
+}
+```
+I found answers to [this question on stackovervlow](https://stackoverflow.com/questions/6681075/while-loop-in-php-with-assignment-operator) to explain this syntax in a good way.
