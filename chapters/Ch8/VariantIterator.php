@@ -10,8 +10,8 @@ $arr = ['one', 'two', 'three'];
 // var_dump(next($arr)); // three
 
 class VariantIterator {
-  private array $collection = [];
-  private bool $isFirstCall = true;
+  protected array $collection = [];
+  protected bool $isFirstCall = true;
   /* 
     In popps book, we used the pointer property, but here in php architect book, the writer uses native 
     methods that are surprisingly not deprecated in php like current(), next() and reset()

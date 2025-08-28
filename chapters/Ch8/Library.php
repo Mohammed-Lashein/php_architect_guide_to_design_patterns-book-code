@@ -15,4 +15,7 @@ class Library {
   public function getVariantIterator(): VariantIterator {
     return new VariantIterator($this->collection);
   }
+  public function getAvailableItemsIterator() {
+    return new AvailableItemsIterator($this->collection);
+  }
 }
