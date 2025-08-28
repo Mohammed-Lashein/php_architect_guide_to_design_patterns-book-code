@@ -20,7 +20,7 @@ class Iterator {
     $this->collection = $collection;
   }
   public function isDone() {
-    return false;
+    return current($this->collection) === false;
   }
   public function currentItem(): Lendable {
     // return $this->collection[$this->pointer];
