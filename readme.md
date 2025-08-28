@@ -58,3 +58,75 @@ while($item = $it->next()) {
 }
 ```
 I found answers to [this question on stackovervlow](https://stackoverflow.com/questions/6681075/while-loop-in-php-with-assignment-operator) to explain this syntax in a good way.
+____
+### `AvailableItemsIterator::next()` implementation
+  This is my 1st try to implement this method
+```php
+class AvailableItemsIterator extends VariantIterator {
+  public function next(): Lendable|bool|null {
+    // array_filter($this->collection, fn($item) => $item->status === 'library');
+    if($this->currentItem()->status === 'library') {
+      $itemToReturn = $this->currentItem();
+      next($this->collection);
+      return $itemToReturn;
+    } else {
+      // move on
+      next($this->collection);
+      return null;
+    }
+  }
+}
+```
+But on encountering an item that has a status of `'borrowed'`, the execution of the method stopped and I didn't know why.
+After careful thinking, I found that since we were returning null from the method, the while loop will exit and will not complete.
+That's why on encountering an item of status `'borrowed'` the execution stopped.
+
+What is the solution then? 🤔
+We need to store the available items that we will loop over in a property of `AvailableItemsIterator`: 
+```php
+class AvailableItemsIterator extends VariantIterator {
+  private array $availableItems = [];
+  public function __construct(array $collection) {
+    parent::__construct($collection);
+    $this->availableItems = array_filter($this->collection, fn($item) => $item->status === 'library');
+  }
+  public function next(): Lendable|bool {
+    if($this->isFirstCall) {
+      $this->isFirstCall = false;
+      return current($this->availableItems);
+    }
+    return next($this->availableItems);
+  }
+}
+```
+____
+### Why in `AvailableItemsIterator::next()` test we need to create a new instance of the class in order for the change made to `$this->collection` to get reflected?
+```php
+  test("LibraryAvailableIterator works correctly", function() {
+    $dvd = new Media('test', 2015, 'dvd');
+    $this->lib->add($dvd);
+    $this->lib->add(new Media('media4', 2016));
+
+    $it = $this->lib->getVariantIterator();
+    $output = '';
+    while($item = $it->next()) {
+      $output .= $item->getName();
+    }
+    expect($output)->toBe('media1media2media3testmedia4');
+
+    $libAvailableIterator = $this->lib->getAvailableItemsIterator();
+
+    $dvd->checkout('John');
+
+    // why do we need to create another instance?
+    $libAvailableIterator2 = $this->lib->getAvailableItemsIterator();
+
+    $output = '';
+    while ($item = $libAvailableIterator2->next()) {
+      $output .= $item->getName();
+    }
+    expect($output)->toBe('media1media2media3media4');
+  })->only();
+```
+Chat explained to me:  
+Since each iterator gets a snapshot of `$this->collection` on instantiation, any change **is not** reflected to the Iterator, that's why we need to create another iterator to be able to read these reflected changes.
