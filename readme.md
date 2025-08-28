@@ -130,3 +130,5 @@ ____
 ```
 Chat explained to me:  
 Since each iterator gets a snapshot of `$this->collection` on instantiation, any change **is not** reflected to the Iterator, that's why we need to create another iterator to be able to read these reflected changes.
+
+UPDATE: There is no need for the 2nd `$libAvailableIterator` since we can instantiate from `AvailableItemsIterator` when we need to use it. I will keep the code example just for clarity.
