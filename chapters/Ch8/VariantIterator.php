@@ -11,7 +11,7 @@ $arr = ['one', 'two', 'three'];
 
 class VariantIterator {
   private array $collection = [];
-  private bool $isFirstTimeToCallNextMethod = true;
+  private bool $isFirstCall = true;
   /* 
     In popps book, we used the pointer property, but here in php architect book, the writer uses native 
     methods that are surprisingly not deprecated in php like current(), next() and reset()
@@ -28,8 +28,8 @@ class VariantIterator {
     return current($this->collection);
   }
   public function next(): Lendable|bool {
-    if($this->isFirstTimeToCallNextMethod) {
-      $this->isFirstTimeToCallNextMethod = false;
+    if($this->isFirstCall) {
+      $this->isFirstCall = false;
       return $this->currentItem();
     }
     return next($this->collection);
