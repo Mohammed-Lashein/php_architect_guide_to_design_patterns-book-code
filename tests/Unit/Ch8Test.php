@@ -57,8 +57,29 @@ describe("Iterator", function() {
     expect($currentItem->getName())->toBe('media1');
     expect($it->isDone())->toBeFalse();
 
-    $nextItem = $it->next();
+    expect($it->next())->toBeTrue();
+    $nextItem = $it->currentItem();
     expect($nextItem->getName())->toBe("media2");
     expect($it->isDone())->toBeFalse();
+
+    // 3rd iteration... All elements have been looped over
+    expect($it->next())->toBeTrue();
+    $lastItem = $it->currentItem();
+    expect($lastItem->getName())->toBe('media3');
+
+    /*
+      Note that you need to call $it->next() for a last time before calling $it->isDone() to make sure
+    that $it->isDone() will return the expected value 
+    */
+    expect($it->next())->toBe(false);
+    expect($it->isDone())->toBeTrue();
+  });
+
+  test("can be used correctly in a loop", function() {
+    $output = '';
+    for($it = $this->lib->getIterator(); !$it->isDone(); $it->next()) {
+      $output .= $it->currentItem()->getName();
+    }
+    expect($output)->toBe('media1media2media3');
   });
 });
