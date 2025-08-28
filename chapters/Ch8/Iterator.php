@@ -26,7 +26,7 @@ class Iterator {
     // return $this->collection[$this->pointer];
     return current($this->collection);
   }
-  public function next(): Lendable {
-    return next($this->collection);
+  public function next(): bool {
+    return next($this->collection) !== false;
   }
 }
