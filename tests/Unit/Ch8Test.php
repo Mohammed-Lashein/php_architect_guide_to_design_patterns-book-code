@@ -5,6 +5,7 @@ use Chapters\Ch8\Iterator;
 use Chapters\Ch8\Lendable;
 use Chapters\Ch8\Library;
 use Chapters\Ch8\Media;
+use Chapters\Ch8\PolymorphicForeachableLibrary;
 
 test("checkout status", function() {
 
@@ -145,3 +146,17 @@ test("ForeachableLibrary works correctly", function() {
   }
   expect($output)->toBe('media1media2media3');
 });
+test("PolymorphicForeachableLibrary works correctly", function() {
+  $this->lib = new PolymorphicForeachableLibrary();
+  $this->lib->add(new Media('media1', 2010));
+  $this->lib->add(new Media('media2', 2002));
+  $this->lib->add(new Media('media3', 2007));
+
+  $output = '';
+  foreach($this->lib as $item) {
+    echo 'this is the key';
+    var_dump($this->lib->key());
+    $output .= $item->getName();
+  }
+  expect($output)->toBe('media1media2media3');
+})->only();
