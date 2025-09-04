@@ -19,7 +19,7 @@ class Iterator {
   public function __construct(array $collection) {
     $this->collection = $collection;
   }
-  public function isDone() {
+  public function isDone(): bool {
     return current($this->collection) === false;
   }
   public function currentItem(): Lendable {

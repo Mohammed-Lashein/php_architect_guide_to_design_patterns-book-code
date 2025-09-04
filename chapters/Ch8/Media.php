@@ -3,7 +3,7 @@
 namespace Chapters\Ch8;
 class Media extends Lendable {
   private string $name;
-  private string $year;
+  private int $year;
   private string $type;
 
   public function __construct($n, $y, $t = 'dvd') {

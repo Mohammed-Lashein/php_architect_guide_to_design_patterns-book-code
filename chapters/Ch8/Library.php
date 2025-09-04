@@ -3,7 +3,7 @@
 namespace Chapters\Ch8;
 class Library {
   private array $collection = [];
-  public function count() {
+  public function count(): int {
     return count($this->collection);
   }
   public function add(Lendable $item): void {
@@ -15,7 +15,7 @@ class Library {
   public function getVariantIterator(): VariantIterator {
     return new VariantIterator($this->collection);
   }
-  public function getAvailableItemsIterator() {
+  public function getAvailableItemsIterator(): AvailableItemsIterator {
     return new AvailableItemsIterator($this->collection);
   }
 }
