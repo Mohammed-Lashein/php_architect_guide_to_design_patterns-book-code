@@ -3,6 +3,11 @@
 namespace Chapters\Ch8;
 
 use Iterator;
+/* 
+  This class is bound to just one style of iteration. What can we do to have the other iterator styles?
+  => Use the Strategy pattern (delegate the SPL iterator's 5 fns to another object)
+
+*/
 class ForeachableLibrary extends Library implements Iterator {
   private bool $valid;
   public function current(): mixed {
