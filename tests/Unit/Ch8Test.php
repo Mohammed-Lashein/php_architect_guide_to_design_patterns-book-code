@@ -40,9 +40,9 @@ describe("Iterator", function() {
      * @property Library $lib
      */
     $this->lib = new Library();
-    $this->lib->add(new Media('media1', 2012));
-    $this->lib->add(new Media('media2', 2013));
-    $this->lib->add(new Media('media3', 2014));
+    $this->lib->add(new Media('media1', 2010));
+    $this->lib->add(new Media('media2', 2002));
+    $this->lib->add(new Media('media3', 2007));
   });
 
   test("returned from Library::getIterator()", function() {
