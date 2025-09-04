@@ -2,7 +2,7 @@
 
 namespace Chapters\Ch8;
 class Library {
-  private array $collection = [];
+  protected array $collection = [];
   public function count(): int {
     return count($this->collection);
   }

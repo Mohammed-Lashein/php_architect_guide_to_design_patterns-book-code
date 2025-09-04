@@ -1,5 +1,6 @@
 <?php
 
+use Chapters\Ch8\ForeachableLibrary;
 use Chapters\Ch8\Iterator;
 use Chapters\Ch8\Lendable;
 use Chapters\Ch8\Library;
@@ -129,4 +130,18 @@ describe("Iterator", function() {
 
     expect(implode(' ', $output))->toBe('media4-1999 media2-2002 media3-2007 media1-2010');
   });
+});
+test("ForeachableLibrary works correctly", function() {
+  $this->lib = new ForeachableLibrary();
+  $this->lib->add(new Media('media1', 2010));
+  $this->lib->add(new Media('media2', 2002));
+  $this->lib->add(new Media('media3', 2007));
+
+  $output = '';
+  foreach($this->lib as $item) {
+    echo 'this is the key';
+    var_dump($this->lib->key());
+    $output .= $item->getName();
+  }
+  expect($output)->toBe('media1media2media3');
 });
