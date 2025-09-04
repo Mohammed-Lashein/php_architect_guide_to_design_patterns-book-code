@@ -122,14 +122,11 @@ describe("Iterator", function() {
     $this->lib->add(new Media('media4', 1999));
     $it = $this->lib->getLibraryReleasedIterator();
 
-    $output = '';
+    $output = [];
     while($item = $it->next()) {
-      // the writer has a better implementation than mine
-      // My solution has a problem in that there will be a space after the last element. It is not a big deal
-      // as we can rtrim it
-      $output .= $item->getName() . '-' . $item->getYear() . ' ';
+      $output[] = $item->getName() . '-' . $item->getYear();
     }
 
-    expect($output)->toBe('media4-1999 media2-2002 media3-2007 media1-2010 ');
-  })->only();
+    expect(implode(' ', $output))->toBe('media4-1999 media2-2002 media3-2007 media1-2010');
+  });
 });
