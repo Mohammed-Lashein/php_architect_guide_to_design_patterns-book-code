@@ -14,4 +14,7 @@ class Media extends Lendable {
   public function getName(): string {
     return $this->name;
   }
+  public function getYear(): int {
+    return $this->year;
+  }
 }

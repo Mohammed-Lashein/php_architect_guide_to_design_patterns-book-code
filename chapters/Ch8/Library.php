@@ -18,4 +18,7 @@ class Library {
   public function getAvailableItemsIterator(): AvailableItemsIterator {
     return new AvailableItemsIterator($this->collection);
   }
+  public function getLibraryReleasedIterator(): LibraryReleasedIterator {
+    return new LibraryReleasedIterator($this->collection);
+  }
 }
