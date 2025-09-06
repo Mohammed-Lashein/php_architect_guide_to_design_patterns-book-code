@@ -154,9 +154,25 @@ test("PolymorphicForeachableLibrary works correctly", function() {
 
   $output = '';
   foreach($this->lib as $item) {
-    echo 'this is the key';
-    var_dump($this->lib->key());
+    // echo 'this is the key';
+    // var_dump($this->lib->key());
     $output .= $item->getName();
   }
   expect($output)->toBe('media1media2media3');
-})->only();
+});
+
+test("PolymorphicForeachableLibrary can use other iterator types", function() {
+  $this->lib = new PolymorphicForeachableLibrary();
+  $this->lib->add(new Media('media1', 2010));
+  $this->lib->add(new Media('media2', 2002));
+  $this->lib->add(new Media('media3', 2007));
+  $this->lib->add(new Media('media4', 1999));
+
+  $it = $this->lib->iteratorType('released');
+  $output = [];
+  foreach($this->lib as $item) {
+    $output[] = $item->getName() . '-' . $item->getYear();
+  }
+  expect(implode(' ', $output))->toBe('media4-1999 media2-2002 media3-2007 media1-2010');
+
+});
