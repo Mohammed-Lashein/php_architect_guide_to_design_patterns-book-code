@@ -1,0 +1,198 @@
+# Chapter8: The Iterator pattern
+Some php functions to know: 
+- `current()`: returns the value of the array element that's currently being pointed to by the array pointer.
+- `reset()`: resets the internal pointer of an array to the **first** element and returns the value of the first array element.
+- `next()`: Advances the internal pointer of an array to the next element AND return the value of that element
+______
+### Regarding `Iterator::next()`
+It is a bit unusual that this method returns a boolean instead of a `Lendable` instance.
+I wanted to follow the same behavior of php function `next()`.
+
+Update: After [reading in the docs](https://www.php.net/manual/en/iterator.next.php), I found that the implementation of Iterator interface specifies that `Iterator::next()` returns `void`.
+
+So the writer was partially correct in that he didn't write the code to return the next element to iterate over.
+____
+### On implementing the `VariantIterator::next()`
+Initially, I thought of this implementation regarding that method: 
+```php
+  // In VariantIterator 
+  public function next(): Lendable|bool {
+    // if we haven't reached the end of the collection, return the next el in the collection 
+    $collectionIsNotEmptyYet = next($this->collection) !== false;
+    if($collectionIsNotEmptyYet) {
+      return $this->currentItem();
+    }
+    // // if we have reached ... , return false
+    return next($this->collection);
+  }
+```
+So what's wrong with the above implementation? 🤔
+The problem is that we are advancing the internal pointer of `$this->collection` before accessing the 1st element, thus our test fails.
+
+Another implementation: 
+```php
+// In VariantIterator
+/*
+ The return value of static::currentItem() should be changed to also allow a bool. The last iteration of static::next() will return it. 
+*/
+  public function currentItem(): Lendable|bool {
+    // return $this->collection[$this->pointer];
+    return current($this->collection);
+  }
+  public function next(): Lendable|bool {
+    // a much cleaner one, 
+    $currentItem = $this->currentItem();
+    next($this->collection);
+    return $currentItem;
+  }
+```
+I will follow the writer's implementation (where he used a flag to determine the 1st iteration) to stick with the code in the book.
+____
+### Assignment in the while loop expression
+This syntax is used extensively in this chapter's code: 
+```php
+while($item = $it->next()) {
+  // some code...
+}
+```
+I found answers to [this question on stackovervlow](https://stackoverflow.com/questions/6681075/while-loop-in-php-with-assignment-operator) to explain this syntax in a good way.
+____
+### `AvailableItemsIterator::next()` implementation
+  This is my 1st try to implement this method
+```php
+class AvailableItemsIterator extends VariantIterator {
+  public function next(): Lendable|bool|null {
+    // array_filter($this->collection, fn($item) => $item->status === 'library');
+    if($this->currentItem()->status === 'library') {
+      $itemToReturn = $this->currentItem();
+      next($this->collection);
+      return $itemToReturn;
+    } else {
+      // move on
+      next($this->collection);
+      return null;
+    }
+  }
+}
+```
+But on encountering an item that has a status of `'borrowed'`, the execution of the method stopped and I didn't know why.
+After careful thinking, I found that since we were returning null from the method, the while loop will exit and will not complete.
+That's why on encountering an item of status `'borrowed'` the execution stopped.
+
+What is the solution then? 🤔
+We need to store the available items that we will loop over in a property of `AvailableItemsIterator`: 
+```php
+class AvailableItemsIterator extends VariantIterator {
+  private array $availableItems = [];
+  public function __construct(array $collection) {
+    parent::__construct($collection);
+    $this->availableItems = array_filter($this->collection, fn($item) => $item->status === 'library');
+  }
+  public function next(): Lendable|bool {
+    if($this->isFirstCall) {
+      $this->isFirstCall = false;
+      return current($this->availableItems);
+    }
+    return next($this->availableItems);
+  }
+}
+```
+____
+### Why in `AvailableItemsIterator::next()` test we need to create a new instance of the class in order for the change made to `$this->collection` to get reflected?
+```php
+  test("LibraryAvailableIterator works correctly", function() {
+    $dvd = new Media('test', 2015, 'dvd');
+    $this->lib->add($dvd);
+    $this->lib->add(new Media('media4', 2016));
+
+    $it = $this->lib->getVariantIterator();
+    $output = '';
+    while($item = $it->next()) {
+      $output .= $item->getName();
+    }
+    expect($output)->toBe('media1media2media3testmedia4');
+
+    $libAvailableIterator = $this->lib->getAvailableItemsIterator();
+
+    $dvd->checkout('John');
+
+    // why do we need to create another instance?
+    $libAvailableIterator2 = $this->lib->getAvailableItemsIterator();
+
+    $output = '';
+    while ($item = $libAvailableIterator2->next()) {
+      $output .= $item->getName();
+    }
+    expect($output)->toBe('media1media2media3media4');
+  })->only();
+```
+Chat explained to me:  
+Since each iterator gets a snapshot of `$this->collection` on instantiation, any change **is not** reflected to the Iterator, that's why we need to create another iterator to be able to read these reflected changes.
+
+UPDATE: There is no need for the 2nd `$libAvailableIterator` since we can instantiate from `AvailableItemsIterator` when we need to use it. I will keep the code example just for clarity.
+
+
+# Notes about iterators
+
+## LibraryReleasedIterator
+The iterator works, but I don't like our implementation of sorting the `collection`.
+We are using `usort`, which sorts the array in place.
+But following immutability principles, we should create a copy of the array and sort it instead.
+
+So, I asked claude for some help and here is a good suggestion: 
+> store a copy of the `$this->collection`, then apply `usort` to it
+```php
+$this->storeItems = $this->collection;
+```
+
+But wait a minute. In js, arrays are passed by reference by default, so we are still breaking immutability like so.   
+**This is not the case in php**. Quoting [from the docs](https://www.php.net/manual/en/language.types.array.php), (Example #31 Array Copying): 
+> Array assignment always involves value copying. Use the reference operator `&` to copy an array by reference.
+
+So in php, the default is value copying unlike js.
+____
+## Classes thoughts
+After finishing the chapter, it seems that we have a LOT of classes and the code became more complex. So, it is important to list each class responsibilities for easier maintenance: 
+
+1. `ForeachableLibrary`: Instead of directly calling the iterator in a `while` loop as we did at the beginning of the chapter, we will be able to directly loop over the library in a `foreach` loop.  
+How will we do that ? 🤔  
+Our `ForeachableLibrary` *implements* `Iterator` interface, that's why we will be able to loop over it directly in the `foreach` loop.
+
+1. `PolymorphicForeachableLibrary`: Allows us to define what iterator type we want to use.  
+How are we able to loop over `$this->lib` instance directly in the `foreach` loop? 🤔  
+Because `PolymorphicForeachableLibrary` also *implements* `Iterator` interface
+
+1. `StandardLibraryIterator`: It has the methods required by the `Iterator` interface.
+But why doesn't `StandardLibraryIterator` implement `Iterator` interface explicitly in the code?  
+Because we want to be able to loop over `$this->lib` instead of getting the iterator from it and looping through the iterator in the `foreach` loop (Although there is a better solution to be explained later)
+
+### Separation of concerns notice 
+Instead of mixing concerns, we can make `ForeachableLibrary` and `PolymorphicForeachableLibrary` implement `IteratorAggregate` instead of `Iterator` interface. By doing so, the previously 2 mentioned classes won't need to have the iterator methods required by the `Iterator` interface, but instead they will delegate that responsibility to an iterator we choose.
+
+The updated implementation: 
+```php
+class StandardLibraryIterator implements Iterator {}
+class ForeachableLibrary extends Library implements IteratorAggregate {
+  // this method is required by the IteratorAggregate interface
+  public function getIterator(): Iterator {
+    $type = $this->iterator_type;
+    $classNameWithNamespace = __NAMESPACE__ . '\\' . $type;
+    return new $classNameWithNamespace($this->collection);
+  }
+}
+// same should happen for `PolymorphicForeachableLibrary`
+```
+Usage of the classes after separation of concerns: 
+```php
+$library = new PolymorphicForeachableLibrary();
+$library->setIteratorType('released');
+
+// This works because IteratorAggregate makes it foreachable
+foreach ($library as $item) {
+  echo "$item->name \n";
+}
+
+// You can also get the iterator directly if needed
+$iterator = $library->getIterator();
+```
+Note that if you choose to follow the above approach, you will need to remove `Library::getIterator(): Iterator` because it returns our custom `Iterator`, which happens to have the same name as the `Iterator` interface, so it is causing a conflict with `IteratorAggregate` which expects our `getIterator()` method to return a `Transversable` (an abstract base interface).

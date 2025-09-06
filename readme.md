@@ -1,7 +1,4 @@
-# Here I document my notes through reading each chapter
+# What is this repo for?
+This is my second attempt to learn from this book (php architect's guide to design patterns). The [first attempt](https://github.com/Mohammed-Lashein/scandiweb-BE-prototype) was a couple of months ago. The problem with the aforementioned repository is that it had several concerns, and it was cluttered with a lot of noise.
 
-## Chapter8: The Iterator pattern
-Some php functions to know: 
-- `current()`: returns the value of the array element that's currently being pointed to by the array pointer.
-- `reset()`: resets the internal pointer of an array to the **first** element and returns the value of the first array element.
-- `next()`: Advances the internal pointer of an array to the next element AND return the value of that element
+But this repository just focuses on this book's code as a reference for both Design Patterns and TDD.

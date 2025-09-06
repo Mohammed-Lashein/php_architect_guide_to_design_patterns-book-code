@@ -9,8 +9,9 @@ $arr = ['one', 'two', 'three'];
 // var_dump(next($arr)); // two
 // var_dump(next($arr)); // three
 
-class Iterator {
-  private array $collection = [];
+class VariantIterator {
+  protected array $collection = [];
+  protected bool $isFirstCall = true;
   /* 
     In popps book, we used the pointer property, but here in php architect book, the writer uses native 
     methods that are surprisingly not deprecated in php like current(), next() and reset()
@@ -26,7 +27,11 @@ class Iterator {
     // return $this->collection[$this->pointer];
     return current($this->collection);
   }
-  public function next(): bool {
-    return next($this->collection) !== false;
+  public function next(): Lendable|bool {
+    if($this->isFirstCall) {
+      $this->isFirstCall = false;
+      return $this->currentItem();
+    }
+    return next($this->collection);
   }
 }
