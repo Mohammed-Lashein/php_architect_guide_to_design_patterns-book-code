@@ -42,7 +42,9 @@ class PolymorphicForeachableLibrary extends Library implements Iterator {
     $this->rewind();
   }
   public function rewind(): void {
-    $this->iterator = new StandardLibraryIterator($this->collection);
+    $type = $this->iterator_type;
+    $classNameWithNamespace = __NAMESPACE__ . '\\' . $type;
+    $this->iterator = new $classNameWithNamespace($this->collection);
     $this->iterator->rewind();
   }
 }
