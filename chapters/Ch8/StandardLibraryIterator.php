@@ -33,6 +33,7 @@ class StandardLibraryIterator {
   }
   public function rewind(): void {
     $this->valid = reset($this->collection) !== false;
-    reset($this->collection);
+    // no need to recall reset(), it will be called once in the above check
+    // reset($this->collection);
   }
 }
