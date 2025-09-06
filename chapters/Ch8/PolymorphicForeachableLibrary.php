@@ -5,6 +5,10 @@ namespace Chapters\Ch8;
 use Iterator;
 class PolymorphicForeachableLibrary extends Library implements Iterator {
     private StandardLibraryIterator $iterator; // This iterator will be on of  our custom iterators
+    protected string $iterator_type;
+    public function __construct() {
+      $this->iteratorType();
+    }
   public function current(): mixed {
     return $this->iterator->current();
   }
@@ -26,6 +30,16 @@ class PolymorphicForeachableLibrary extends Library implements Iterator {
   }
   public function valid(): bool {
     return $this->iterator->valid();
+  }
+  public function iteratorType($type = false) {
+    switch(strtolower($type)) {
+      case 'released': 
+        $this->iterator_type = 'ForeachableReleasedIterator';
+        break;
+      default:
+        $this->iterator_type = 'StandardLibraryIterator';
+    }
+    $this->rewind();
   }
   public function rewind(): void {
     $this->iterator = new StandardLibraryIterator($this->collection);
